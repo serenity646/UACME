@@ -1,0 +1,26 @@
+name: Build UACME
+
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v1.1
+      
+    - name: Build UACME
+      run: msbuild Source\uacme.sln /m /v:normal /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=v143
+      
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: UACME-binaries
+        path: Bin/
