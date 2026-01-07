@@ -1,0 +1,37 @@
+name: Build UACME
+
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+      
+    - name: Build UACME
+      run: msbuild Source\uacme.sln /m /v:normal /p:Configuration=Release /p:Platform=x64 /p:PlatformToolset=v143
+      
+    - name: List all files (debug)
+      run: |
+        echo "=== Checking Bin folder ==="
+        dir Bin /s
+        echo "=== Checking Source folders ==="
+        dir Source /s /b | findstr /i ".exe .dll"
+      
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: UACME-binaries
+        path: |
+          Source/**/x64/Release/*.exe
+          Source/**/x64/Release/*.dll
+          Bin/**/*
+        if-no-files-found: warn
